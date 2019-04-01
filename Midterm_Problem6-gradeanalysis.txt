@@ -1,0 +1,62 @@
+import matplotlib.pyplot as plt
+import numpy as np
+import pickle
+
+grade_dictionary = {'0-59': 0,'60-69': 0, '70-79': 0,'80-89': 0, '90-100': 0}
+
+def read_csv():
+    try:
+        file_name = input("Please enter a file name (with .csv extention): ")
+        structured_array = np.genfromtxt(file_name,delimiter=',',dtype="S30,i8",skip_header=0,names=True)
+        return structured_array
+    except:
+        print('The file does not exist. Exiting...')
+        exit()
+
+def average_grade(structured_array):
+    avg_grade = np.mean(structured_array['Grade'], axis=0)
+    print('This assignment has an average grade of ', int(avg_grade))
+
+
+def highest_grade(structured_array):
+    max_grade = np.max(structured_array['Grade'], axis=0)
+    print('The assignment\'s highest grade is', max_grade)
+
+def lowest_grade(structured_array):
+    min_grade = np.min(structured_array['Grade'], axis=0)
+    print('The assignment\'s lowest grade is', min_grade)
+
+def histogram_pickl_plot(structured_array):
+    slots = [0, 60, 70, 80, 90, 100]
+    frequency, slots, patch = plt.hist(structured_array['Grade'], slots, histtype='bar', rwidth=0.95,
+                                     label='A (90-100)\nB (80-89)\nC (70-79)\nD (60-69)\nF (0-59)')
+
+    i = 0
+    for key in grade_dictionary.keys():
+        grade_dictionary[key] = frequency[i]
+        i = i + 1
+    try:
+        handle = open('grade_hist.pickle', 'wb')
+        pickle.dump(grade_dictionary, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    except:
+        print('The pickle file can not be opened. Exiting...');
+        exit()
+
+    # Plotting the histogram
+    plt.xlabel('Grades', fontweight='bold')
+    plt.ylabel('Frequency', fontweight='bold')
+    plt.title('Histogram of the Grades')
+    plt.xticks([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]),
+    plt.legend()
+    plt.show()
+
+
+def main():
+    structured_array = read_csv()
+    average_grade(structured_array)
+    highest_grade(structured_array)
+    lowest_grade(structured_array)
+    histogram_pickl_plot(structured_array)
+
+
+main()
